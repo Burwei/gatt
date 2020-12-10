@@ -75,6 +75,7 @@ type Service struct {
 	h    uint16
 	endh uint16
 	connh ConnStatHandler
+	disconnh ConnStatHandler
 }
 
 // NewService creates and initialize a new Service using u as it's UUID.
@@ -124,10 +125,22 @@ func (s *Service) SetCharacteristics(chars []*Characteristic) { s.chars = chars 
 func (s *Service) Characteristics() []*Characteristic { return s.chars }
 
 //SetConnStatHandler sets the connection state handler of the service.
-func (s *Service) SetConnStatHandler(c *ConnStatHandler){ s.connh = *c }
+func (s *Service) SetConnStatHandler(
+	connh *ConnStatHandler, 
+	disconnh *ConnStatHandler,
+){ 
+	s.connh = *connh 
+	s.disconnh = *disconnh
+}
 
 // ConnStatChange triggers connection state handler when state is changed.
-func (s *Service) ConnStatChange(isConn bool) { s.connh() }
+func (s *Service) ConnStatChange(isConn bool) { 
+		if isConn {
+			s.connh()
+		}else{
+			s.disconnh()
+		} 
+	}
 
 // A Characteristic is a BLE characteristic.
 type Characteristic struct {
